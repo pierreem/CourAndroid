@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -20,7 +21,8 @@ import okhttp3.Response
 class MainActivity2 : AppCompatActivity() {
 
     lateinit var json: TextView
-    lateinit var job: Job
+    private val job = Job()
+    internal val coroutineScope = CoroutineScope(Dispatchers.IO + job)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -51,7 +53,7 @@ class MainActivity2 : AppCompatActivity() {
 
 
    fun getPictureList() {
-       job = CoroutineScope(Dispatchers.IO).launch {
+        coroutineScope.launch {
            val ret = requestPictureList()
 
            withContext(Dispatchers.Main) {
