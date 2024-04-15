@@ -1,14 +1,18 @@
 package fr.nextu.guerton_pierreemmanuel
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.room.Room
+import com.google.gson.Gson
+import fr.nextu.guerton_pierreemmanuel.entity.Movie
+import fr.nextu.guerton_pierreemmanuel.entity.Movies
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -20,6 +24,7 @@ import okhttp3.Response
 class MainActivity2 : AppCompatActivity() {
 
     lateinit var json: TextView
+    lateinit var db: AppDatabase
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -36,26 +41,33 @@ class MainActivity2 : AppCompatActivity() {
         }
 
         json = findViewById(R.id.json)
+
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "movies.db"
+        ).build()
     }
 
     override fun onStart() {
         super.onStart()
-        getPictureList()
+        updateViewFromDB()
+        requestMoviesList()
     }
 
     override fun onStop() {
         super.onStop()
     }
 
-    fun getPictureList() {
-        runBlocking {
-            requestPictureList {
-                json.text = it
-            }.await()
+    fun updateViewFromDB() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val flow = db.movieDao().getFlowData()
+            flow.collect{
+                Log.e("MainActivity2", "Flow data: $it")
+            }
         }
-   }
+    }
 
-    fun requestPictureList(cb: (String) -> Unit) = CoroutineScope(Dispatchers.IO).async {
+    fun requestMoviesList() = CoroutineScope(Dispatchers.IO).async {
         val client = OkHttpClient()
 
 
@@ -66,9 +78,12 @@ class MainActivity2 : AppCompatActivity() {
             .build()
 
         val response: Response = client.newCall(request).execute()
+        moviesFromJson(response.body?.string() ?: "")
+    }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            cb(response.body?.string() ?: "")
-        }
+    fun moviesFromJson(json: String) {
+        val gson = Gson()
+        val om = gson.fromJson(json,  Movies::class.java)
+        db.movieDao().insertAll(*om.movies.toTypedArray())
     }
 }
