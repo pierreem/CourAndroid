@@ -12,6 +12,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -47,12 +48,14 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     fun getPictureList() {
-        requestPictureList {
-            json.text = it
+        runBlocking {
+            requestPictureList {
+                json.text = it
+            }.await()
         }
    }
 
-    fun requestPictureList(cb: (String) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
+    fun requestPictureList(cb: (String) -> Unit) = CoroutineScope(Dispatchers.IO).async {
         val client = OkHttpClient()
 
 
