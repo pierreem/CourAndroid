@@ -47,16 +47,12 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     fun getPictureList() {
-        CoroutineScope(Dispatchers.IO).launch {
-            requestPictureList {
-                CoroutineScope(Dispatchers.Main).launch {
-                    json.text = it
-                }
-            }
+        requestPictureList {
+            json.text = it
         }
    }
 
-    fun requestPictureList(cb: (String) -> Unit) {
+    fun requestPictureList(cb: (String) -> Unit) = CoroutineScope(Dispatchers.IO).launch {
         val client = OkHttpClient()
 
 
@@ -68,6 +64,8 @@ class MainActivity2 : AppCompatActivity() {
 
         val response: Response = client.newCall(request).execute()
 
-        cb(response.body?.string() ?: "")
+        CoroutineScope(Dispatchers.Main).launch {
+            cb(response.body?.string() ?: "")
+        }
     }
 }
