@@ -47,4 +47,7 @@
     <string name="back">Retour à la vues précédante</string>
     <string name="loading">...</string>
     <string name="betaseries_api_key">470d2afc452f</string>
+    <string name="movies_updated_title">Movies list updated</string>
+    <string name="channel_name">Movie update</string>
+    <string name="channel_description">A update notification when new movies come</string>
 </resources>
