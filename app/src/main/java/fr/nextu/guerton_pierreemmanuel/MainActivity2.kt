@@ -7,7 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -17,6 +20,7 @@ import okhttp3.Response
 class MainActivity2 : AppCompatActivity() {
 
     lateinit var json: TextView
+    lateinit var job: Job
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -33,6 +37,14 @@ class MainActivity2 : AppCompatActivity() {
         }
 
         json = findViewById(R.id.json)
+
+        job = CoroutineScope(Dispatchers.IO).launch {
+            val ret = requestPictureList()
+
+            withContext(Dispatchers.Main) {
+                json.text = ret
+            }
+        }
     }
 
     override fun onStart() {
@@ -40,14 +52,15 @@ class MainActivity2 : AppCompatActivity() {
         getPictureList()
     }
 
-
-    fun getPictureList() = runBlocking {
-        val ret = withContext(Dispatchers.IO) {
-            requestPictureList()
-        }
-
-        json.text= ret
+    override fun onStop() {
+        super.onStop()
+        job.cancel()
     }
+
+
+   fun getPictureList() {
+       job.start()
+   }
 
     fun requestPictureList(): String {
         val client = OkHttpClient()
