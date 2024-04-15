@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.google.gson.Gson
 import fr.nextu.guerton_pierreemmanuel.entity.Movie
@@ -22,9 +23,8 @@ import okhttp3.Request
 import okhttp3.Response
 
 class MainActivity2 : AppCompatActivity() {
-
-    lateinit var json: TextView
     lateinit var db: AppDatabase
+    lateinit var movies_recycler: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,12 +40,17 @@ class MainActivity2 : AppCompatActivity() {
             finish()
         }
 
-        json = findViewById(R.id.json)
+        movies_recycler = findViewById<RecyclerView>(R.id.movies_recylcer).apply {
+            adapter = MovieAdapter(emptyList())
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@MainActivity2)
+        }
 
         db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "movies.db"
         ).build()
+
+
     }
 
     override fun onStart() {
@@ -62,7 +67,9 @@ class MainActivity2 : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             val flow = db.movieDao().getFlowData()
             flow.collect{
-                Log.e("MainActivity2", "Flow data: $it")
+                CoroutineScope(Dispatchers.Main).launch {
+                    movies_recycler.adapter = MovieAdapter(it)
+                }
             }
         }
     }
