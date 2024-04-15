@@ -37,14 +37,6 @@ class MainActivity2 : AppCompatActivity() {
         }
 
         json = findViewById(R.id.json)
-
-        job = CoroutineScope(Dispatchers.IO).launch {
-            val ret = requestPictureList()
-
-            withContext(Dispatchers.Main) {
-                json.text = ret
-            }
-        }
     }
 
     override fun onStart() {
@@ -59,7 +51,13 @@ class MainActivity2 : AppCompatActivity() {
 
 
    fun getPictureList() {
-       job.start()
+       job = CoroutineScope(Dispatchers.IO).launch {
+           val ret = requestPictureList()
+
+           withContext(Dispatchers.Main) {
+               json.text = ret
+           }
+       }
    }
 
     fun requestPictureList(): String {
