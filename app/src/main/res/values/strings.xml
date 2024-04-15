@@ -45,4 +45,6 @@
     </string>
     <string name="jump_into_am2">Jump into am2</string>
     <string name="back">Retour à la vues précédante</string>
+    <string name="loading">...</string>
+    <string name="betaseries_api_key">470d2afc452f</string>
 </resources>
