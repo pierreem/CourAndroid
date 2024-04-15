@@ -1,5 +1,6 @@
 package fr.nextu.guerton_pierreemmanuel
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -34,6 +35,10 @@ class SecondFragment : Fragment() {
 
         binding.buttonSecond.setOnClickListener {
             findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
+        }
+
+        binding.am2.setOnClickListener {
+            startActivity(Intent(requireContext(), MainActivity2::class.java))
         }
     }
 
