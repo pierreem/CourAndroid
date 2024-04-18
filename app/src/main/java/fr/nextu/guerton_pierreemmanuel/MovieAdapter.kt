@@ -12,6 +12,7 @@ class MovieAdapter(private val dataSet: List<Movie>) : RecyclerView.Adapter<Movi
     class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView
         init {
+
             textView = view.findViewById(R.id.title_tv)
         }
     }
